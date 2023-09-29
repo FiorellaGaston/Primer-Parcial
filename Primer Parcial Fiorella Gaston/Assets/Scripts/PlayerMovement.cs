@@ -2,21 +2,36 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float horizontal;
-    public float vertical;
+    public CharacterController controller;
+ 
 
-    public float thrustForce;
-    public float rotationSpeed;
+        public float speed = 6f;
 
-    // Update is called once per frame
+    public float turnSmoothTime = 0.1f;
+
+    float turnsmoothvelocity;
+
+
+    void Start()
+    {
+
+    }
+
     void Update()
     {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-        // Direccion    * Magnitude   * Input    * DeltaTime.
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        transform.position += -transform.forward * thrustForce * vertical * Time.deltaTime;
+        if(direction.magnitude >= 0.1f) 
+        {
 
-        transform.Rotate(Vector3.up, horizontal * Time.deltaTime * rotationSpeed);
+            float targetangle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetangle, ref turnsmoothvelocity, turnSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+
+        controller.Move(direction * speed * Time.deltaTime);
+        }
     }
 }
